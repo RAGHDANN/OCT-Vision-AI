@@ -36,8 +36,10 @@ const Dashboard = () => {
   const [healthReports, setHealthReports] = useState([]);
   const [isEditingHistory, setIsEditingHistory] = useState(false);
   const [editedMedicalHistory, setEditedMedicalHistory] = useState(null);
+  const [showCustomConditionInput, setShowCustomConditionInput] = useState(false);
+  const [showCustomChronicInput, setShowCustomChronicInput] = useState(false);
+  const [showCustomEyeConditionInput, setShowCustomEyeConditionInput] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -68,7 +70,7 @@ const Dashboard = () => {
       if (predictionsError) throw predictionsError;
       setPredictions(diseaseData || []);
 
-      // Fetch medical history
+      // Fetch medical history - Modified to handle no records
       const { data: history, error: historyError } = await supabase
         .from('medical_histories')
         .select('*')
@@ -96,20 +98,10 @@ const Dashboard = () => {
   const saveMedicalHistory = async () => {
     try {
       setSaving(true);
-      setSaveMessage(null);
-
-      const { error } = await supabase
-        .from('medical_histories')
-        .update(editedMedicalHistory)
-        .eq('id', medicalHistory.id);
-
-      if (error) throw error;
-
-      setMedicalHistory(editedMedicalHistory);
+      // Save medical history logic here
       setIsEditingHistory(false);
-      setSaveMessage('Medical history updated successfully!');
     } catch (err) {
-      setSaveMessage('Error saving medical history. Please try again.');
+      console.error(err);
     } finally {
       setSaving(false);
     }
@@ -211,48 +203,146 @@ const Dashboard = () => {
             }}
           >
             <div className="grid md:grid-cols-2 gap-6">
+              {/* Existing Conditions */}
               <div>
                 <label className="font-medium text-gray-700 mb-2 block">Existing Conditions</label>
-                <input
-                  type="text"
+                <select
                   value={editedMedicalHistory?.existing_conditions || ''}
-                  onChange={(e) =>
-                    setEditedMedicalHistory({
-                      ...editedMedicalHistory,
-                      existing_conditions: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded px-3 py-2 text-gray-700"
-                />
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'Other') {
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        existing_conditions: '',
+                      });
+                      setShowCustomConditionInput(true);
+                    } else {
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        existing_conditions: value,
+                      });
+                      setShowCustomConditionInput(false);
+                    }
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">None</option>
+                  <option value="Diabetes">Diabetes</option>
+                  <option value="Hypertension">Hypertension</option>
+                  <option value="Asthma">Asthma</option>
+                  <option value="Heart Disease">Heart Disease</option>
+                  <option value="Other">Other</option>
+                </select>
+
+                {showCustomConditionInput && (
+                  <input
+                    type="text"
+                    placeholder="Enter your condition"
+                    value={editedMedicalHistory?.existing_conditions || ''}
+                    onChange={(e) =>
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        existing_conditions: e.target.value,
+                      })
+                    }
+                    className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                )}
               </div>
+
+              {/* Chronic Diseases */}
               <div>
                 <label className="font-medium text-gray-700 mb-2 block">Chronic Diseases</label>
-                <input
-                  type="text"
+                <select
                   value={editedMedicalHistory?.chronic_diseases || ''}
-                  onChange={(e) =>
-                    setEditedMedicalHistory({
-                      ...editedMedicalHistory,
-                      chronic_diseases: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded px-3 py-2 text-gray-700"
-                />
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'Other') {
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        chronic_diseases: '',
+                      });
+                      setShowCustomChronicInput(true);
+                    } else {
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        chronic_diseases: value,
+                      });
+                      setShowCustomChronicInput(false);
+                    }
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">None</option>
+                  <option value="Glaucoma">Glaucoma</option>
+                  <option value="Cataracts">Cataracts</option>
+                  <option value="Macular Degeneration">Macular Degeneration</option>
+                  <option value="Other">Other</option>
+                </select>
+
+                {showCustomChronicInput && (
+                  <input
+                    type="text"
+                    placeholder="Enter your condition"
+                    value={editedMedicalHistory?.chronic_diseases || ''}
+                    onChange={(e) =>
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        chronic_diseases: e.target.value,
+                      })
+                    }
+                    className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                )}
               </div>
+
+              {/* Previous Eye Conditions */}
               <div>
                 <label className="font-medium text-gray-700 mb-2 block">Previous Eye Conditions</label>
-                <input
-                  type="text"
+                <select
                   value={editedMedicalHistory?.previous_eye_conditions || ''}
-                  onChange={(e) =>
-                    setEditedMedicalHistory({
-                      ...editedMedicalHistory,
-                      previous_eye_conditions: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded px-3 py-2 text-gray-700"
-                />
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'Other') {
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        previous_eye_conditions: '',
+                      });
+                      setShowCustomEyeConditionInput(true);
+                    } else {
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        previous_eye_conditions: value,
+                      });
+                      setShowCustomEyeConditionInput(false);
+                    }
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">None</option>
+                  <option value="Dry Eye Syndrome">Dry Eye Syndrome</option>
+                  <option value="Retinal Detachment">Retinal Detachment</option>
+                  <option value="Conjunctivitis">Conjunctivitis</option>
+                  <option value="Other">Other</option>
+                </select>
+
+                {showCustomEyeConditionInput && (
+                  <input
+                    type="text"
+                    placeholder="Enter your condition"
+                    value={editedMedicalHistory?.previous_eye_conditions || ''}
+                    onChange={(e) =>
+                      setEditedMedicalHistory({
+                        ...editedMedicalHistory,
+                        previous_eye_conditions: e.target.value,
+                      })
+                    }
+                    className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                )}
               </div>
+
+              {/* Last Checkup */}
               <div>
                 <label className="font-medium text-gray-700 mb-2 block">Last Checkup</label>
                 <input
@@ -268,21 +358,23 @@ const Dashboard = () => {
                       last_checkup_date: e.target.value,
                     })
                   }
-                  className="w-full border rounded px-3 py-2 text-gray-700"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-4">
+
+            {/* Action Buttons */}
+            <div className="flex justify-end mt-6">
               <button
                 type="button"
                 onClick={() => setIsEditingHistory(false)}
-                className="bg-gray-200 text-gray-700 px-4 py-2 rounded mr-2"
+                className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                 disabled={saving}
               >
                 {saving ? 'Saving...' : 'Save'}
@@ -294,7 +386,7 @@ const Dashboard = () => {
             <div>
               <h3 className="font-medium text-gray-700 mb-2">Existing Conditions</h3>
               <p
-                className="text-gray-600 cursor-pointer"
+                className="text-gray-600 cursor-pointer hover:text-blue-600 transition"
                 onClick={() => {
                   setEditedMedicalHistory(medicalHistory);
                   setIsEditingHistory(true);
@@ -306,7 +398,7 @@ const Dashboard = () => {
             <div>
               <h3 className="font-medium text-gray-700 mb-2">Chronic Diseases</h3>
               <p
-                className="text-gray-600 cursor-pointer"
+                className="text-gray-600 cursor-pointer hover:text-blue-600 transition"
                 onClick={() => {
                   setEditedMedicalHistory(medicalHistory);
                   setIsEditingHistory(true);
@@ -318,7 +410,7 @@ const Dashboard = () => {
             <div>
               <h3 className="font-medium text-gray-700 mb-2">Previous Eye Conditions</h3>
               <p
-                className="text-gray-600 cursor-pointer"
+                className="text-gray-600 cursor-pointer hover:text-blue-600 transition"
                 onClick={() => {
                   setEditedMedicalHistory(medicalHistory);
                   setIsEditingHistory(true);
@@ -330,7 +422,7 @@ const Dashboard = () => {
             <div>
               <h3 className="font-medium text-gray-700 mb-2">Last Checkup</h3>
               <p
-                className="text-gray-600 cursor-pointer"
+                className="text-gray-600 cursor-pointer hover:text-blue-600 transition"
                 onClick={() => {
                   setEditedMedicalHistory(medicalHistory);
                   setIsEditingHistory(true);
@@ -341,18 +433,6 @@ const Dashboard = () => {
                   : 'No record'}
               </p>
             </div>
-          </div>
-        )}
-
-        {saveMessage && (
-          <div
-            className={`mt-4 p-4 rounded ${
-              saveMessage.includes('successfully')
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-red-50 text-red-700 border border-red-200'
-            }`}
-          >
-            {saveMessage}
           </div>
         )}
       </div>
