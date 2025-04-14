@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { Brain, LogOut, Menu, X } from 'lucide-react';
+import { Eye, LogOut, Menu, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function Navbar() {
@@ -17,10 +17,14 @@ export default function Navbar() {
     <nav className="bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16">
+          {/* Logo and Title */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-800">OCT Vision AI</span>
+              <Eye className="h-8 w-8 text-blue-600" />
+              <span className="text-3xl font-semibold text-gray-900 tracking-wide">
+                <span className="text-blue-600">OCT</span> Vision{' '}
+                <span className="text-blue-600">AI</span>
+              </span>
             </Link>
           </div>
 
@@ -38,9 +42,15 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                <Link to="/dashboard" className="text-gray-700 hover:text-blue-600">Dashboard</Link>
-                <Link to="/diagnosis" className="text-gray-700 hover:text-blue-600">Diagnosis</Link>
-                <Link to="/education" className="text-gray-700 hover:text-blue-600">Education</Link>
+                <Link to="/dashboard" className="text-gray-700 hover:text-blue-600">
+                  Dashboard
+                </Link>
+                <Link to="/diagnosis" className="text-gray-700 hover:text-blue-600">
+                  Diagnosis
+                </Link>
+                <Link to="/education" className="text-gray-700 hover:text-blue-600">
+                  Education
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-1 text-gray-700 hover:text-blue-600"
@@ -51,7 +61,9 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" className="text-gray-700 hover:text-blue-600 pl-4">Login</Link>
+                <Link to="/login" className="text-gray-700 hover:text-blue-600 pl-4">
+                  Login
+                </Link>
                 <Link
                   to="/signup"
                   className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
@@ -69,9 +81,15 @@ export default function Navbar() {
             <div className="flex flex-col space-y-2 mt-2">
               {user ? (
                 <>
-                  <Link to="/dashboard" className="text-gray-700 hover:text-blue-600">Dashboard</Link>
-                  <Link to="/diagnosis" className="text-gray-700 hover:text-blue-600">Diagnosis</Link>
-                  <Link to="/education" className="text-gray-700 hover:text-blue-600">Education</Link>
+                  <Link to="/dashboard" className="text-gray-700 hover:text-blue-600">
+                    Dashboard
+                  </Link>
+                  <Link to="/diagnosis" className="text-gray-700 hover:text-blue-600">
+                    Diagnosis
+                  </Link>
+                  <Link to="/education" className="text-gray-700 hover:text-blue-600">
+                    Education
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center space-x-1 text-gray-700 hover:text-blue-600"
@@ -82,7 +100,9 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-gray-700 hover:text-blue-600 pl-4">Login</Link>
+                  <Link to="/login" className="text-gray-700 hover:text-blue-600 pl-4">
+                    Login
+                  </Link>
                   <Link
                     to="/signup"
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
