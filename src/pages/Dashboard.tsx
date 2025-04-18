@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { useAuthStore } from '../store/authStore';
 import { Calendar, Download, Eye, FileText, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
@@ -131,6 +133,27 @@ const Dashboard = () => {
     }]
   };
 
+  const downloadDashboardAsPDF = async () => {
+    const dashboardElement = document.getElementById('dashboard-content'); // Target the dashboard content
+    if (!dashboardElement) return;
+
+    try {
+      // Use html2canvas to capture the dashboard as an image
+      const canvas = await html2canvas(dashboardElement);
+      const imgData = canvas.toDataURL('image/png');
+
+      // Create a PDF using jsPDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('dashboard.pdf'); // Save the PDF
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -150,7 +173,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8" id="dashboard-content">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Patient Dashboard</h1>
 
       {/* Quick Stats */}
@@ -562,14 +585,14 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Download History Button */}
-      <div className="flex justify-end">
+      {/* Download Dashboard Button */}
+      <div className="flex justify-end mt-4">
         <button
-          onClick={() => {/* TODO: Implement PDF download */}}
+          onClick={downloadDashboardAsPDF}
           className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
           <Download className="h-5 w-5" />
-          <span>Download Medical History</span>
+          <span>Download Dashboard</span>
         </button>
       </div>
     </div>
